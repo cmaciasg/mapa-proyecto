@@ -2,3 +2,5 @@ mapa.html
 .mapa/
 __pycache__/
 .DS_Store
+.agents/
+skills-lock.json
