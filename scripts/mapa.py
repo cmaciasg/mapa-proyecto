@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""mapa.py v3 — escanea los .md de un proyecto y construye mapa.html.
+"""mapa.py (2026-11-17) — escanea los .md de un proyecto y construye mapa.html.
 
 Uso:
   python3 mapa.py scan  <raiz>                 -> inventario JSON (new/changed/same)

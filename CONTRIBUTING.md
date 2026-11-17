@@ -6,7 +6,7 @@
    python3 scripts/mapa.py build examples/demo examples/demo-datos.json
    ```
    Abre `examples/demo/mapa.html` y revisa la consola del navegador.
-3. Si cambias el formato de `datos.json`, actualiza `SKILL.md` y sube la versión del docstring de `mapa.py`.
+3. Si cambias el formato de `datos.json`, actualiza `SKILL.md`, cambia la fecha del docstring de `mapa.py` y añade una entrada con esa fecha en `CHANGELOG.md`.
 4. Abre un pull request explicando qué problema resuelve.
 
 Ideas abiertas:
