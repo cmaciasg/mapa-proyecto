@@ -1,0 +1,5 @@
+{"project":"Demo Dalia","root":{"name":"Demo Dalia","children":[
+ {"name":"Autenticación","children":[
+  {"name":"API key nativa (sin OAuth v1)","status":"decidido","summary":"Se usa la API key de Dolibarr; OAuth fuera de la v1.","who":"compañero","sources":[{"file":"notas-companero/respuestas.md","section":"Autenticación"},{"file":"docs/dudas/auth.md","section":"¿OAuth o API key de Dolibarr?"}]},
+  {"name":"Caducidad de tokens: 30 vs 7 días","status":"contradiccion","summary":"Las notas dicen 30 días; la proposal de OpenSpec dice 7.","sources":[{"file":"notas-companero/respuestas.md","section":"Caducidad"},{"file":"openspec/changes/login/proposal.md","section":"Requisitos"}]}
+ ]}]}}
