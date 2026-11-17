@@ -56,6 +56,7 @@ Escribe un JSON con esta forma en un fichero temporal:
 
 Reglas:
 - **Agrupa por tema funcional, no por carpeta.** La carpeta ya aparece en la ruta de cada fuente.
+- **Orden de desarrollo.** Si algún .md fija un orden de desarrollo o de trabajo, pon los temas del primer nivel en ese orden y empieza su etiqueta por el número del paso (`1 · Autenticación`); agrupa los temas para que encajen con los pasos si hace falta. Los temas que no estén en el orden van al final, sin número. Si ningún .md fija un orden, no lo deduzcas.
 - El nivel 1 son los temas; puede haber subtemas. Las hojas son puntos concretos y siempre llevan `status` y al menos una fuente.
 - Valores de `status`:
   - `pendiente`: duda o pregunta abierta.

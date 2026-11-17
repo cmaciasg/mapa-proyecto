@@ -19,6 +19,8 @@ Cada entrada lleva la fecha que figura en el docstring de `scripts/mapa.py`.
 - La primera pasada no marca nada como NUEVO.
 - `SKILL.md`: conservar la etiqueta de los puntos que siguen existiendo (el
   script los reconoce por ella).
+- `SKILL.md`: si un .md fija un orden de desarrollo, los temas del primer nivel
+  siguen ese orden y llevan su número.
 
 ## Primera publicación
 
