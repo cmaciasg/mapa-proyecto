@@ -68,7 +68,8 @@ Reglas:
 - `section` es el texto literal del encabezado más cercano; el visor lo resalta. Omítelo si el punto no está bajo ningún encabezado.
 - Si existe `openspec/`, úsalo como fuente más: requisitos y escenarios de `specs/`, propuestas y tareas de `changes/`. `archive/` cuenta como decidido.
 - Etiquetas de nodo de 3 a 7 palabras. No inventes datos que no estén en los ficheros.
-- No pongas `isNew`: lo calcula el script.
+- No pongas `isNew` ni `_huella`: los calcula el script.
+- Conserva la etiqueta (`name`) de los puntos que sigan existiendo: el script reconoce cada punto por su etiqueta, y si la cambias saldrá como NUEVO.
 
 ## 4. Generar
 
@@ -76,10 +77,12 @@ Reglas:
 python3 <skill_dir>/scripts/mapa.py build <raiz> <datos.json>
 ```
 
-El comando escribe `<raiz>/mapa.html` y actualiza `.mapa/state.json` y `.mapa/datos.json`. Si avisa de fuentes inexistentes, corrige las rutas y repite.
+El comando escribe `<raiz>/mapa.html` y actualiza `.mapa/state.json` y `.mapa/datos.json`. Si encuentra fuentes inexistentes no escribe nada: corrige las rutas y repite.
+
+Un punto sale como NUEVO si no estaba en la pasada anterior, si cambia su `status` o su `summary`, o si cambia el texto de alguna sección que cita (o del fichero entero, si la fuente no tiene `section`). Que el fichero cambie en otra parte no lo marca. En la primera pasada no hay novedades. El comando imprime la lista de novedades y de puntos eliminados.
 
 Si el proyecto es un repositorio git, sugiere una sola vez añadir `mapa.html` y `.mapa/` al `.gitignore`, salvo que quieran compartir el mapa con el compañero.
 
 ## 5. Entregar
 
-En 2 o 3 líneas: dónde está `mapa.html`, cuántos puntos hay por estado y lo más relevante (contradicciones, huecos y novedades). No describas el mapa entero.
+En 2 o 3 líneas: dónde está `mapa.html`, cuántos puntos hay por estado y lo más relevante (contradicciones, huecos y las novedades y eliminados que imprime el comando). No describas el mapa entero.

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""mapa.py v2 — escanea los .md de un proyecto y construye mapa.html.
+"""mapa.py v3 — escanea los .md de un proyecto y construye mapa.html.
 
 Uso:
   python3 mapa.py scan  <raiz>                 -> inventario JSON (new/changed/same)
   python3 mapa.py build <raiz> <datos.json>    -> escribe <raiz>/mapa.html y actualiza .mapa/state.json
 """
-import fnmatch, hashlib, json, os, sys, datetime, html
+import fnmatch, hashlib, json, os, re, sys, datetime, html
 
 IGNORAR_DIRS = {".git", "node_modules", "vendor", "dist", "build", ".idea", ".vscode", ".mapa", "var", "cache"}
 
@@ -59,37 +59,100 @@ def scan(raiz):
     return {"root": os.path.abspath(raiz), "files": inv, "deleted": borrados}
 
 
+def seccion(texto, section):
+    """Texto bajo el encabezado que contiene `section` (hasta el siguiente de igual o mayor nivel).
+    Sin `section`, o si no se encuentra, devuelve el fichero entero."""
+    if not section:
+        return texto
+    buscado = section.lower().lstrip("#").strip()
+    lineas = texto.splitlines()
+    encabezados, en_codigo = [], False
+    for i, l in enumerate(lineas):
+        if l.lstrip().startswith("```"):
+            en_codigo = not en_codigo
+            continue
+        m = None if en_codigo else re.match(r"^(#{1,6})\s+(.*)", l)
+        if m:
+            encabezados.append((i, len(m.group(1)), m.group(2).lower()))
+    for k, (i, nivel, txt) in enumerate(encabezados):
+        if buscado in txt:
+            fin = next((j for j, n, _ in encabezados[k + 1:] if n <= nivel), len(lineas))
+            return "\n".join(lineas[i:fin])
+    return texto
+
+
+def hojas_previas(raiz, datos_path):
+    """Puntos de la pasada anterior por etiqueta, o None si no hay con qué comparar."""
+    p = os.path.join(raiz, ".mapa", "datos.json")
+    if not os.path.exists(p):
+        return None
+    if os.path.abspath(p) == os.path.abspath(datos_path):
+        print("AVISO: datos.json es el de .mapa/; escríbelo en un fichero temporal para detectar novedades.", file=sys.stderr)
+        return None
+    with open(p, encoding="utf-8") as f:
+        previo = json.load(f)
+    out = {}
+
+    def indexar(n):
+        for c in n.get("children", []):
+            indexar(c)
+        if n.get("sources"):
+            out[n["name"].strip().lower()] = n
+
+    indexar(previo["root"])
+    return out
+
+
 def build(raiz, datos_path):
+    previas = hojas_previas(raiz, datos_path)
     with open(datos_path, encoding="utf-8") as f:
         datos = json.load(f)
-    primera = not estado_previo(raiz)
     inv = {i["path"]: i["status"] for i in scan(raiz)["files"]}
-    contenidos, faltan = {}, []
+    contenidos, faltan, novedades, vistos = {}, [], [], set()
 
     def recorrer(n):
         nuevo = False
-        for s in n.get("sources", []):
-            fp = s["file"]
-            if fp not in inv:
-                faltan.append(fp)
-                continue
-            if fp not in contenidos:
-                with open(os.path.join(raiz, fp), encoding="utf-8", errors="replace") as f:
-                    contenidos[fp] = f.read()
-            if not primera and inv[fp] in ("new", "changed"):
-                nuevo = True
         for c in n.get("children", []):
             nuevo = recorrer(c) or nuevo
+        n.pop("isNew", None)
         if n.get("sources"):
+            partes = []
+            for s in n["sources"]:
+                fp = s["file"]
+                if fp not in inv:
+                    faltan.append(fp)
+                    continue
+                if fp not in contenidos:
+                    with open(os.path.join(raiz, fp), encoding="utf-8", errors="replace") as f:
+                        contenidos[fp] = f.read()
+                partes.append(fp + "\n" + seccion(contenidos[fp], s.get("section")))
+            huella = hashlib.sha1("\n\0".join(partes).encode("utf-8")).hexdigest()
+            clave = n["name"].strip().lower()
+            vistos.add(clave)
+            if previas is not None:
+                p = previas.get(clave)
+                cambia = (p is None or p.get("status") != n.get("status") or p.get("summary") != n.get("summary")
+                          or (p.get("_huella") is not None and p["_huella"] != huella))
+                if cambia:
+                    novedades.append(n["name"])
+                nuevo = cambia or nuevo
+            n["_huella"] = huella
             n["isNew"] = nuevo
         return nuevo
 
     recorrer(datos["root"])
+    if faltan:
+        print("ERROR: fuentes inexistentes; no se ha escrito nada:", sorted(set(faltan)), file=sys.stderr)
+        sys.exit(2)
     os.makedirs(os.path.join(raiz, ".mapa"), exist_ok=True)
     with open(os.path.join(raiz, ".mapa", "datos.json"), "w", encoding="utf-8") as f:
         json.dump(datos, f, ensure_ascii=False, indent=1)
-    if faltan:
-        print("AVISO: fuentes inexistentes:", sorted(set(faltan)), file=sys.stderr)
+    if previas is None:
+        print("NOVEDADES: primera pasada, nada con qué comparar")
+    else:
+        print("NOVEDADES:", len(novedades), "|", "; ".join(novedades))
+        quitados = sorted(p["name"] for k, p in previas.items() if k not in vistos)
+        print("ELIMINADOS:", len(quitados), "|", "; ".join(quitados))
     datos["files"] = contenidos
     datos["generated"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     datos.setdefault("project", os.path.basename(os.path.abspath(raiz)))

@@ -16,7 +16,7 @@ En proyectos con mucha documentación aparecen dudas, respuestas de la IA, notas
   - árbol plegable con zoom y buscador;
   - filtros por estado;
   - al hacer clic en un punto, el `.md` de origen ya renderizado, con la sección concreta resaltada;
-  - marca **NUEVO** en lo que ha cambiado desde el mapa anterior, con el filtro "Solo novedades".
+  - marca **NUEVO** los puntos que han cambiado desde el mapa anterior (punto nuevo, cambio de estado o resumen, o cambio en la sección que cita), con el filtro "Solo novedades".
 - Las siguientes pasadas son incrementales: solo vuelve a leer los ficheros nuevos o modificados.
 - Si el proyecto usa OpenSpec, aprovecha su estructura, pero no lo necesita.
 
