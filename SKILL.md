@@ -1,6 +1,18 @@
 ---
 name: mapa-proyecto
-description: Genera o actualiza un mapa mental visual (mapa.html) de los .md de un proyecto, con dudas, decisiones, requisitos, huecos y contradicciones enlazados a su fichero. Úsala cuando el usuario pida "mapa del proyecto", "actualiza el mapa", "dónde está X en la documentación" o diga que se pierde entre los .md.
+description: Genera o actualiza un mapa mental interactivo (mapa.html) de los .md de un proyecto, con dudas, decisiones, requisitos, huecos y contradicciones enlazados a su fichero de origen; úsala cuando pidan "mapa del proyecto", "actualiza el mapa" o no sepan dónde está algo en la documentación.
+argument-hint: "[ruta-del-proyecto]"
+allowed-tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
+context: |
+  Pensada para proyectos con mucha documentación Markdown repartida en varias
+  carpetas: notas de aprendizaje, idas y venidas entre compañeros y specs SDD
+  (OpenSpec u otros). La parte determinista (escaneo, detección de cambios por
+  sha1 y generación del HTML con d3 y marked) la hace scripts/mapa.py; Claude
+  solo clasifica por tema y estado. Las pasadas son incrementales.
 ---
 
 # Mapa del proyecto
